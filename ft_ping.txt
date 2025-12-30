@@ -1,0 +1,266 @@
+socket(AF_INET, SOCK_RAW, IPPROTO_ICMP)
+
+struct icmp_header {
+  uint8_t  type;          // ICMP_ECHO (8) for request, ICMP_ECHOREPLY (0) for reply
+  uint8_t  code;          // Sub-code (usually 0)
+  uint16_t checksum;      // Error checking bits
+  uint16_t id;            // Process ID to identify which 'ping' instance this is
+  uint16_t sequence;      // Incrementing number for each packet sent
+  uint64_t timestamp;     // Data payload used to calculate Round Trip Time (RTT)
+};
+
+uint16_t checksum(void *buf, int len) {
+    uint32_t sum = 0;
+    uint16_t *ptr = buf;
+
+    while (len > 1) {
+        sum += *ptr++;
+        len -= 2;
+    }
+    if (len == 1)
+        sum += *(uint8_t*)ptr;
+
+    sum = (sum >> 16) + (sum & 0xffff);
+    sum += (sum >> 16);
+
+    return ~sum;
+}
+
+sendto(sock, packet, packet_len, 0, &dest_addr, sizeof(dest_addr))
+
+recvmsg(sock, &msg, 0)
+
+Perfect — let’s build you a **clear, structured study roadmap** so you can write your own tiny `ping` with only `-v` and `-?`, without touching real code here.  
+Think of this as the **conceptual blueprint** you’ll follow to implement it confidently.
+
+You already have the mindset for event‑driven systems, so this will feel natural.
+
+---
+
+# 🧭 **Your Study Roadmap for Writing a Minimal `ping` Clone**
+
+Below is the exact sequence I recommend you follow.  
+Each step tells you **what to learn**, **why it matters**, and **what to look for** in the inetutils‑2.0 reference.
+
+---
+
+# 1. 🌐 **Understand What ICMP Echo Really Is**
+Before touching sockets, you need to know what you’re sending.
+
+### Study:
+- What ICMP is (Internet Control Message Protocol)
+- What an **Echo Request** and **Echo Reply** contain
+- The structure of an ICMP packet:
+  - Type
+  - Code
+  - Checksum
+  - Identifier
+  - Sequence number
+  - Payload
+
+### Why:
+Your program must manually build this structure.  
+Even if you don’t write the bytes yet, you need to know the fields.
+
+### What to look for in inetutils:
+- The struct definitions for ICMP headers
+- How they fill the identifier and sequence
+
+---
+
+# 2. 🧱 **Learn What a Raw Socket Is**
+Your ping will use a **raw socket**, not TCP or UDP.
+
+### Study:
+- What a raw socket is
+- Why ICMP requires raw sockets
+- The difference between:
+  - `AF_INET`
+  - `SOCK_RAW`
+  - `IPPROTO_ICMP`
+
+### Why:
+Your program must open a raw socket to send ICMP packets.
+
+### What to look for in inetutils:
+- The socket creation call
+- Error handling around it
+
+---
+
+# 3. 🧩 **Understand the Send/Receive Loop**
+Ping is basically:
+
+1. Build packet
+2. Send packet
+3. Wait for reply
+4. Parse reply
+5. Print result
+6. Repeat
+
+### Study:
+- How blocking reads work
+- How timeouts work
+- How to parse an incoming IP packet to extract the ICMP part
+
+### Why:
+This is the core logic of ping.
+
+### What to look for in inetutils:
+- The main loop (`pinger()` or equivalent)
+- How they parse the incoming packet
+
+---
+
+# 4. ⏱️ **Learn How RTT (Round‑Trip Time) Is Measured**
+Ping measures the time between sending and receiving.
+
+### Study:
+- How timestamps are stored in the payload
+- How to subtract timestamps
+- What precision you need (microseconds vs milliseconds)
+
+### Why:
+Your `-v` mode will likely print extra timing details.
+
+### What to look for in inetutils:
+- Where they insert timestamps into the payload
+- How they compute RTT
+
+---
+
+# 5. 🧮 **Understand the ICMP Checksum**
+This is the only “math” part.
+
+### Study:
+- Internet checksum algorithm (one’s complement sum)
+- Why ICMP requires it
+- How to compute it over the header + payload
+
+### Why:
+Your packet must have a valid checksum or no host will reply.
+
+### What to look for in inetutils:
+- The checksum function
+- How they apply it before sending
+
+---
+
+# 6. 🗣️ **Study How Command‑Line Options Are Parsed**
+You only need:
+
+- `-v` → verbose mode
+- `-?` → help message
+
+### Study:
+- How getopt or manual parsing works
+- How flags modify program behavior
+
+### Why:
+This is the simplest part of your project.
+
+### What to look for in inetutils:
+- The option parser
+- How they map flags to variables
+
+---
+
+# 7. 📊 **Understand the Final Statistics**
+Even a minimal ping prints:
+
+- packets sent
+- packets received
+- packet loss
+- min/avg/max RTT
+
+### Study:
+- How to accumulate statistics
+- How to compute averages
+
+### Why:
+Even a tiny ping needs basic stats.
+
+### What to look for in inetutils:
+- The summary printing function
+
+---
+
+# 8. 🧠 **Put It All Together: The Logical Flow**
+Here’s the conceptual algorithm you’ll eventually implement:
+
+```
+parse command-line options (-v, -?)
+resolve hostname to IP
+open raw ICMP socket
+initialize counters and timers
+
+loop:
+    build ICMP Echo Request packet
+    compute checksum
+    send packet
+    wait for reply
+    if reply received:
+        parse IP header
+        parse ICMP header
+        verify identifier and sequence
+        compute RTT
+        print result (more detail if -v)
+    update statistics
+    sleep 1 second
+until interrupted
+
+print summary statistics
+```
+
+This is the **mental model** you should master before writing any code.
+
+---
+
+# 9. 📚 **Recommended Study Materials**
+These are the topics you should search for and read:
+
+### Networking fundamentals
+- ICMP protocol basics
+- IPv4 packet structure
+- Raw sockets
+
+### System programming
+- POSIX sockets
+- `recvmsg()` vs `recvfrom()`
+- `gettimeofday()` or `clock_gettime()`
+
+### Tools to inspect packets
+- Wireshark (capture real ping packets)
+- `tcpdump -v icmp`
+
+### inetutils‑2.0 source
+- Look at:
+  - `ping.c`
+  - `icmp_echo.c`
+  - checksum implementation
+  - option parsing
+
+---
+
+# 10. 🎯 **Your Goal**
+By the end of this study path, you should be able to:
+
+- Describe ICMP Echo packets
+- Explain raw sockets
+- Understand how ping measures time
+- Parse command‑line flags
+- Build a minimal send/receive loop
+- Print verbose output and help text
+
+And then you’ll be ready to write your own implementation from scratch.
+
+---
+
+If you want, I can also create:
+
+- A **visual diagram** of the ICMP packet  
+- A **flowchart** of the ping logic  
+- A **checklist** you can follow while coding  
+- A **comparison** between inetutils ping and iputils ping  
+
+Just tell me what format helps you learn best.
