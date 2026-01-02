@@ -1,9 +1,9 @@
 #!/usr/bin
 
+cd /tmp
 
 wget https://ftp.gnu.org/gnu/inetutils/inetutils-2.0.tar.xz && \
-mv inetutils-2.0.tar.xz /usr/bin && \
-cd /usr/bin/ && \
+
 tar -xvf inetutils-2.0.tar.xz && \
 cd inetutils-2.0 || exit 1
 
@@ -34,6 +34,6 @@ cd inetutils-2.0 || exit 1
             --disable-tftp \
             --disable-whois \
             --disable-ifconfig \
-            --disable-traceroute \
-make && make install && \
-mv -v /usr/bin/{ping} /bin || exit 1
+            --disable-traceroute
+make && sudo make install && \
+sudo mv -v /usr/bin/ping /bin || exit 1
