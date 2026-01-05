@@ -90,7 +90,7 @@ typedef int (*ping_efp) (int code,
 			 void *closure,
 			 struct sockaddr_in * dest,
 			 struct sockaddr_in * from,
-			 struct ip * ip, icmphdr_t * icmp, int datalen);
+			  * ip, icmphdr_t * icmp, int datalen);
 
 union event {
   ping_efp6 handler6;

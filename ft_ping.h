@@ -12,6 +12,9 @@
   (t).tv_usec = ((i)%PING_PRECISION)*(1000000/PING_PRECISION) ;\
 } while (0)
 
+#define _PING_TST(p,bit)					\
+  (_C_BIT (p, _C_IND (p,bit)) & _C_MASK  (_C_IND (p,bit))
+
 #define _PING_CLR(p,bit)						\
   do									\
     {									\
@@ -38,6 +41,7 @@ struct ping_data
     char *ping_hostname;
     size_t ping_datalen;
     int ping_ident;
+    unsigned char *ping_buffer;
     struct sockaddr_in ping_sockaddr
     struct timeval ping_start_time;
     char *ping_cktab;
