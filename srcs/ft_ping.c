@@ -1,7 +1,7 @@
 #include "ft_ping.h"
 
 extern unsigned char *data_buffer;
-extern unsigned int options;
+unsigned int options = 0;  
 extern unsigned int stop = 0;
 
 void init_data_buffer()
@@ -25,7 +25,7 @@ static error_t parse_opt(int key, char *argv, struct argp_state *state)
         case 'v':
             options = OPT_VERBOSE;
             break;
-        case ARGP_KEY_ARG;
+        case ARGP_KEY_ARG:
             break;
         default:
             return ARGP_ERR_UNKNOWN;

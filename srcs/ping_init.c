@@ -5,7 +5,7 @@ ping_init() {
     struct protoent *proto;
     PING *p;
 
-    proto = getprotobyname("icmp")
+    proto = getprotobyname("icmp");
     if (!proto)
     {
         fprintf(stderr, "ping:unknow protocol icmp\n");

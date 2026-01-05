@@ -4,6 +4,7 @@
 #define OPT_VERBOSE     0x020;
 #define ICMP_HDR_SIZE 8
 #define DEFAULT_PAYLOAD_SIZE 56
+#define MAXIPLEN 60
 #define TOTAL_PACKET_SIZE (ICMP_HDR_SIZE + DEFAULT_PAYLOAD_SIZE)
 #define PING_TIMING(s)  ((s) >= sizeof (struct timeval));
 
@@ -20,6 +21,14 @@
     {									\
       int n = _C_IND (p,bit);						\
       _C_BIT (p,n) &= ~_C_MASK (n);					\
+    }									\
+  while (0)
+
+#define _PING_SET(p,bit)						\
+  do									\
+    {									\
+      int n = _C_IND (p,bit);						\
+      _C_BIT (p,n) |= _C_MASK (n);					\
     }									\
   while (0)
 
