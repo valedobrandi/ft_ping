@@ -1,6 +1,8 @@
-#include "ft_ping.h"
+#include "../ft_ping.h"
+#include <linux/icmp.h>
+#include <netinet/ip_icmp.h>
 
-ping_init() {
+PING *ping_init() {
     int fd;
     struct protoent *proto;
     PING *p;
@@ -21,14 +23,14 @@ ping_init() {
     p = malloc(sizeof(*p));
     if (!p)
     {
-        close(fd);
+        pclose(fd);
         return p;
     }
 
     memset(p, 0, sizeof(*p));
     p->ping_fd = fd;
-    p->ping_datalen = sizeof(icmphdr_t);
-    p->ping_cktab_size = PING_CKTABSIZE;
+    //p->ping_datalen = sizeof (icmphdr);
+    //p->ping_cktab_size = PING_CKTABSIZE;
     gettimeofday(&p->ping_start_time, NULL);
     return p;
 }

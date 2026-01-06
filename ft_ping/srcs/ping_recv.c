@@ -1,9 +1,4 @@
-#include <netinet/ip.h>
-#include <stddef.h>
-#include <netinet/ip_icmp.h>
 #include "../ft_ping.h"
-#include <linux/icmp.h>
-#include <bsd/netinet/ip_icmp.h>
 
 /* icmp_hdr->type
 

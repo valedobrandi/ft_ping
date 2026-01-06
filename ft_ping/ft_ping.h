@@ -1,5 +1,11 @@
 #include <netdb.h>
 #include <argp.h>
+#include <stdlib.h>
+#include <string.h>
+#include <netinet/ip.h>
+#include <stddef.h>
+#include <sys/time.h>
+#include <linux/icmp.h>
 
 #define OPT_VERBOSE     0x020;
 #define ICMP_HDR_SIZE 8
@@ -13,7 +19,7 @@
   (t).tv_usec = ((i)%PING_PRECISION)*(1000000/PING_PRECISION) ;\
 } while (0)
 
-#define _PING_TST(p,bit)					\
+/* #define _PING_TST(p,bit)					\
   (_C_BIT (p, _C_IND (p,bit)) & _C_MASK  (_C_IND (p,bit))
 
 #define _PING_CLR(p,bit)						\
@@ -30,19 +36,9 @@
       int n = _C_IND (p,bit);						\
       _C_BIT (p,n) |= _C_MASK (n);					\
     }									\
-  while (0)
+  while (0) */
 
 typedef struct ping_data PING;
-
-static char doc[] = "ft_ping -- a simple ping implementation";
-static char args_doc[] = "HOST";
-
-static struct argp_option options[] = {
-    {"verbose", 'v', 0, 0, "Produce verbose output", 0},
-    {0}
-};
-
-static struct argp argp = { options, parse_opt, args_doc, doc };
 
 struct ping_data
 {
@@ -51,19 +47,19 @@ struct ping_data
     size_t ping_datalen;
     int ping_ident;
     unsigned char *ping_buffer;
-    struct sockaddr_in ping_sockaddr
+    struct sockaddr_in ping_sockaddr;
     struct timeval ping_start_time;
     char *ping_cktab;
     size_t ping_num_xmit;
     size_t ping_num_recv;
     size_t ping_num_rept;
-}
+};
 
-struct ping_stat
-{
-    double tmin;
-    double tmax;
-    double tsum;
-}
+// struct ping_stat
+// {
+//     double tmin;
+//     double tmax;
+//     double tsum;
+// };
 
 PING *ping_init();
