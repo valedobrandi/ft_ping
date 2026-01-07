@@ -2,10 +2,12 @@
 #include <argp.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
+#include <stdio.h>
+#include <errno.h>
 #include <netinet/ip.h>
 #include <stddef.h>
 #include <sys/time.h>
-#include <linux/icmp.h>
 
 #define OPT_VERBOSE     0x020;
 #define ICMP_HDR_SIZE 8
@@ -43,23 +45,26 @@ typedef struct ping_data PING;
 struct ping_data
 {
     int ping_fd;
+    int ping_type;
+    int ping_ident;
+    struct timeval ping_start_time;
+
     char *ping_hostname;
     size_t ping_datalen;
     int ping_ident;
     unsigned char *ping_buffer;
     struct sockaddr_in ping_sockaddr;
-    struct timeval ping_start_time;
     char *ping_cktab;
     size_t ping_num_xmit;
     size_t ping_num_recv;
     size_t ping_num_rept;
 };
 
-// struct ping_stat
-// {
-//     double tmin;
-//     double tmax;
-//     double tsum;
-// };
+struct ping_stat
+{
+    double tmin;
+    double tmax;
+    double tsum;
+};
 
-PING *ping_init();
+PING *ping_init(int type, int ident);

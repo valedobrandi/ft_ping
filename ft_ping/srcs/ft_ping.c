@@ -1,16 +1,17 @@
 #include "../ft_ping.h"
+#include <netinet/ip_icmp.h>
 
 extern unsigned char *data_buffer;
 unsigned options;  
 // extern unsigned int stop = 0;
 
-// void init_data_buffer()
-// {
-//     for (size_t i = 0; i < DEFAULT_PAYLOAD_SIZE; i++)
-//     {
-//         data_buffer[i] = i;
-//     }
-// }
+void init_data_buffer()
+{
+    for (size_t i = 0; i < DEFAULT_PAYLOAD_SIZE; i++)
+    {
+        data_buffer[i] = i;
+    }
+}
 
 // void ping_reset (PING * p)
 // {
@@ -228,37 +229,7 @@ unsigned options;
 //              {
 //                 if (ping_recv(ping) == 0) nresp++;
 //              }
-            
 //         }
-    
-// }
-
-// int ping_echo( PING *ping, char *hostname)
-// {
-//     struct ping_stat ping_stat;
-//     int status;
-
-//     memset(&ping_stat, 0, sizeof(ping_stat));
-//     ping_stat.min = 999999999.0;
-
-//     if (ping_set_dest(ping, hostname))
-//     {
-//         error(EXIT_FAILURE, 0, "unknown host");
-//     }
-
-//     printf("PING %s (%s): %zu data bytes",
-//         ping->ping_hostname,
-//         inet_ntoa(ping.ping_sockaddr.sin_addr, DEFAULT_PAYLOAD_SIZE);
-//     )
-
-//     if (options & OPT_VERBOSE)
-//     {
-//         printf (", id 0x%04x = %u", ping->ping_ident, ping->ping_ident);
-//     }
-
-//     print("\n");
-
-//     status = ping_run(ping);
 // }
 
 static char doc[] = "ft_ping -- a simple ping implementation";
@@ -294,12 +265,14 @@ int main(int argc, char **argv)
     int index;
     int one = 1;
     int status = 0;
-    
-    if (argp_parse(&argp, argc, argv, 0, &index, NULL) != 0)
+
+    argp_parse(&argp, argc, argv, 0, &index, NULL);    
+    ping = ping_init(ICMP_ECHO, getpid ());
+    if (!ping)
     {
         exit(EXIT_FAILURE);
     }
-
+    
     argc -= index;
     argv += index;
     
@@ -308,22 +281,15 @@ int main(int argc, char **argv)
         fprintf(stderr, "ping: missing host operand\n");
         exit(64);
     }
+    init_data_buffer();
 
-    ping = ping_init();
-    if (!ping)
+    while (argc--)
     {
-        exit(EXIT_FAILURE);
+        status |= ping_echo(ping, argv++);
+        ping_reset(ping);
     }
 
-    // init_data_buffer();
-    // setsockopt (ping->ping_fd, SOL_SOCKET, SO_BROADCAST, (char *) &one, sizeof (one));
-
-    // while (argc--)
-    // {
-    //     status |= ping_echo(ping, argv++);
-    //     ping_reset(ping);
-    // }
-
-    // free(ping);
-    // return status;
+    free(ping);
+    free(data_buffer);
+    return status;
 }
