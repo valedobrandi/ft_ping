@@ -1,70 +1,45 @@
-#include <netdb.h>
-#include <argp.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
+#ifndef FT_PING_H
+#define FT_PING_H
+
 #include <stdio.h>
+#include <string.h>
+#include <sys/socket.h>
+#include <netinet/ip.h>   
+#include <netinet/ip_icmp.h> 
+#include <arpa/inet.h>
+#include <netdb.h>
+#include <unistd.h>
+#include <stdlib.h>
+#include <signal.h>
 #include <errno.h>
-#include <netinet/ip.h>
-#include <stddef.h>
+#include <stdint.h>
+#include <sys/types.h>
 #include <sys/time.h>
-
-#define OPT_VERBOSE     0x020;
-#define ICMP_HDR_SIZE 8
-#define DEFAULT_PAYLOAD_SIZE 56
-#define MAXIPLEN 60
-#define TOTAL_PACKET_SIZE (ICMP_HDR_SIZE + DEFAULT_PAYLOAD_SIZE)
-#define PING_TIMING(s)  ((s) >= sizeof (struct timeval));
-
-#define PING_SET_INTERVAL(t,i) do {\
-  (t).tv_sec = (i)/PING_PRECISION;\
-  (t).tv_usec = ((i)%PING_PRECISION)*(1000000/PING_PRECISION) ;\
-} while (0)
-
-/* #define _PING_TST(p,bit)					\
-  (_C_BIT (p, _C_IND (p,bit)) & _C_MASK  (_C_IND (p,bit))
-
-#define _PING_CLR(p,bit)						\
-  do									\
-    {									\
-      int n = _C_IND (p,bit);						\
-      _C_BIT (p,n) &= ~_C_MASK (n);					\
-    }									\
-  while (0)
-
-#define _PING_SET(p,bit)						\
-  do									\
-    {									\
-      int n = _C_IND (p,bit);						\
-      _C_BIT (p,n) |= _C_MASK (n);					\
-    }									\
-  while (0) */
-
-typedef struct ping_data PING;
-
-struct ping_data
+#include <math.h>
+struct s_socket_header
 {
-    int ping_fd;
-    int ping_type;
-    int ping_ident;
-    struct timeval ping_start_time;
-
-    char *ping_hostname;
-    size_t ping_datalen;
-    int ping_ident;
-    unsigned char *ping_buffer;
-    struct sockaddr_in ping_sockaddr;
-    char *ping_cktab;
-    size_t ping_num_xmit;
-    size_t ping_num_recv;
-    size_t ping_num_rept;
+    struct iphdr *ipHeader;
+    struct icmphdr *icmpHeader;
+    char *payload;
 };
 
-struct ping_stat
-{
-    double tmin;
-    double tmax;
-    double tsum;
-};
 
-PING *ping_init(int type, int ident);
+typedef struct s_icmp
+{
+    uint8_t  type;
+    uint8_t  code;
+    uint16_t checksum;
+    uint16_t identifier;
+    uint16_t sequence;
+} t_icmp;
+
+typedef struct PING {
+    int transmitted;
+    int received;
+    double rtt_min;
+    double rtt_max;
+    double rtt_sum;
+    double rtt_sum_squares;
+} t_ping;
+
+#endif

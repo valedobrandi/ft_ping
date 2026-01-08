@@ -1,10 +1,9 @@
 NAME = ft_ping
-CC = gcc
+CC = cc
 CFLAGS = -Wall -Wextra -Werror
-LDFLAGS =
-SRCS = ft_ping.c
+SRCS = ft_ping.c arg42.c
 OBJS = $(SRCS:.c=.o)
-DEPS = ft_ping.h
+
 INCLUDES = -I.
 
 .PHONY: all clean fclean re
@@ -12,10 +11,10 @@ INCLUDES = -I.
 all: $(NAME)
 
 $(NAME): $(OBJS)
-	$(CC) $(CFLAGS) $(INCLUDES) -o $@ $^ $(LDFLAGS) $(DEPS)
+	$(CC) $(CFLAGS) $(INCLUDES) -o $@ $^ -lm
 
 %.o: %.c
-	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
+	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@ 
 
 clean:
 	rm -f $(OBJS)
