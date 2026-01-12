@@ -2,10 +2,10 @@
 #include <stdio.h>
 
 t_arg42 * 
-find_option(t_arg42 *opts, const char type)
+find_option(t_arg42 *opts, const char *type)
 {
     for (int i = 0; opts[i].type; i++) {
-        if (opts[i].type == type)
+        if (strcmp(opts[i].type, type) == 0)
             return &opts[i];
     }
     return NULL;
@@ -15,7 +15,7 @@ int
 argp42_parse(
     t_arg42_args *main_args,
     t_arg42 *opts,
-    int (*handler)(int, char *, void *),
+    int (*handler)(char *, char *, void *),
     void *user
 )
 {
@@ -28,7 +28,7 @@ argp42_parse(
 
         if (arg[0] == '-')
         {
-            opt = find_option(opts, arg[1]);
+            opt = find_option(opts, &arg[1]);
             if (!opt)
                 return 1;
             if (handler(opt->type, 0, user) != 0)
@@ -44,11 +44,32 @@ argp42_parse(
     return 0;
 };
 
+size_t parse_number(const char *optarg, size_t max, int allow_zero)
+{
+    char *p;
+    unsigned long n;
+
+    n = strtoul(optarg, &p, 0);
+    if (*p) {
+        printf("invalid value (`%s' near `%s')", optarg, p);
+        exit(1);
+    }
+    if (n == 0 && !allow_zero) {
+        printf("option value too small: %s", optarg);
+        exit(1);
+    };
+    if (max && n > max) {
+        printf("option value too big: %s", optarg);
+        exit(1);
+    };
+    return n;
+}
+
 void
 print_help(t_arg42 *opts)
 {
     printf("Usage: ./ft_ping [OPTIONS] host\n\nOptions:\n");
     for (int i = 0; opts[i].type; i++) {
-        printf("-%c: %s\n", opts[i].type, opts[i].helper);
+        printf("-%s: %s\n", opts[i].type, opts[i].helper);
     }
 }
