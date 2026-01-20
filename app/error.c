@@ -18,12 +18,19 @@ struct icmp_code_descr
     {ICMP_DEST_UNREACH, ICMP_HOST_ISOLATED, "Host Isolated"},
     {ICMP_DEST_UNREACH, ICMP_NET_UNR_TOS, "Destination Network Unreachable At This TOS"},
     {ICMP_DEST_UNREACH, ICMP_HOST_UNR_TOS, "Destination Host Unreachable At This TOS"},
+
     {ICMP_REDIRECT, ICMP_REDIR_NET, "Redirect Network"},
     {ICMP_REDIRECT, ICMP_REDIR_HOST, "Redirect Host"},
     {ICMP_REDIRECT, ICMP_REDIR_NETTOS, "Redirect Type of Service and Network"},
     {ICMP_REDIRECT, ICMP_REDIR_HOSTTOS, "Redirect Type of Service and Host"},
+
     {ICMP_TIME_EXCEEDED, ICMP_EXC_TTL, "Time to live exceeded"},
-    {ICMP_TIME_EXCEEDED, ICMP_EXC_FRAGTIME, "Frag reassembly time exceeded"}
+    {ICMP_TIME_EXCEEDED, ICMP_EXC_FRAGTIME, "Frag reassembly time exceeded"},
+
+    {ICMP_SOURCE_QUENCH, 0, "Source Quench"}, 
+    {ICMP_PARAMPROB, 0, "Parameter Problem"},
+    
+    {-1, -1, NULL}
   };
 
 char *ft_print_icmp_error(int type, int code) {

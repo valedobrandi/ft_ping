@@ -8,21 +8,24 @@
 #define TRUE 1
 #define FALSE 0
 
+#define MAX_INTERVAL 2147483647.0
+
 typedef struct s_arg42
 {
-    char *type;
+    char type;
     char *arg;
     const char *helper;
 } t_arg42;
 
 typedef struct s_opts {
-    int verbose;
     unsigned long count;
     unsigned long interval;
     int ttl;
     unsigned long timeout;
     unsigned long linger;
+    int verbose;
     int help;
+    int has_interval;
 
 } t_opts;
 
@@ -39,11 +42,12 @@ typedef struct s_args
     char *host;
 }   t_args;
 
-t_arg42 * find_option(t_arg42 *opts, const char *type);
+t_arg42 * find_option(t_arg42 *opts, const char type);
+
 int argp42_parse(
     t_arg42_args *main_args,
     t_arg42 *opts,
-    int (*handler)(char *, char *, void *),
+    int (*handler)(int, char *, void *),
     void *user
 );
 

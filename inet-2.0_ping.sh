@@ -7,10 +7,10 @@ wget https://ftp.gnu.org/gnu/inetutils/inetutils-2.0.tar.xz && \
 tar -xvf inetutils-2.0.tar.xz && \
 cd inetutils-2.0 || exit 1
 
-./configure --prefix=/usr \
-            --localstatedir=/var \
+PREFIX="$HOME/Documents"
+
+./configure --prefix="$PREFIX" \
             --disable-ftpd \
-            --disable-inetd \
             --disable-inetd \
             --disable-rexecd \
             --disable-rlogind \
@@ -35,5 +35,5 @@ cd inetutils-2.0 || exit 1
             --disable-whois \
             --disable-ifconfig \
             --disable-traceroute
-make && sudo make install && \
-sudo mv -v /usr/bin/ping /bin || exit 1
+make && make install
+cp "$PREFIX/bin/ping" "$HOME/Documents/ft_ping/ft_ping"
