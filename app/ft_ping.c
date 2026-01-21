@@ -196,8 +196,6 @@ int main(int argc, char **argv) {
     {
         struct timeval start, end, now;
         gettimeofday(&start, NULL);
-
-        // Check for time limit
         gettimeofday(&now, NULL);
 
         double current_time = (now.tv_sec - timeout.tv_sec) + (now.tv_usec - timeout.tv_usec) / 1000000.0;
