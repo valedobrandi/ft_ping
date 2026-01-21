@@ -1,4 +1,4 @@
-#include "argp42.h"
+#include "parse.h"
 #include <stdio.h>
 
 t_arg42 * 
@@ -12,7 +12,7 @@ find_option(t_arg42 *opts, const char type)
 }
 
 int 
-argp42_parse(
+ft_argp(
     t_arg42_args *main_args,
     t_arg42 *opts,
     int (*handler)(int, char *, void *),

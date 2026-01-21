@@ -1,4 +1,4 @@
-#include "argp42.h"
+#include "parse.h"
 #include "ft_ping.h"
 
 struct  s_opts options;
@@ -138,7 +138,7 @@ int main(int argc, char **argv) {
 
     signal (SIGINT, sig_int);
 
-    if (argp42_parse(&main_args, opts, handle_options, &args) != 0 || args.help) {
+    if (ft_argp(&main_args, opts, handle_options, &args) != 0 || args.help) {
             print_help(opts); return 0;
     }
 
@@ -202,12 +202,10 @@ int main(int argc, char **argv) {
 
         double current_time = (now.tv_sec - timeout.tv_sec) + (now.tv_usec - timeout.tv_usec) / 1000000.0;
         if (options.timeout > 0 && current_time >= options.timeout) {
-            //fprintf(stderr, "Time limit reached.\n");
             break;
         }
         
         struct timeval packet_timeout;
-        // 3 second default timeout
         packet_timeout.tv_sec = options.linger > 0 ? options.linger : 3;
         packet_timeout.tv_usec = 0;
         // Send ICMP Echo Request

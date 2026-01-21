@@ -1,5 +1,5 @@
-#ifndef ARGP42_H
-#define ARGP42_H
+#ifndef PARSE_H
+#define PARSE_H
 
 #include <stddef.h>
 #include <string.h>
@@ -44,7 +44,7 @@ typedef struct s_args
 
 t_arg42 * find_option(t_arg42 *opts, const char type);
 
-int argp42_parse(
+int ft_argp(
     t_arg42_args *main_args,
     t_arg42 *opts,
     int (*handler)(int, char *, void *),
