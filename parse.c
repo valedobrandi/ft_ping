@@ -10,7 +10,10 @@ find_option(t_arg42 *opts, const char type)
     }
     return NULL;
 }
-
+int parse_ttl(const char *arg)
+{
+    return strcmp(arg, "--ttl");
+}
 int 
 ft_argp(
     t_arg42_args *main_args,
@@ -29,6 +32,10 @@ ft_argp(
         if (arg[0] == '-')
         {
             int opt_key = arg[1];
+            if (parse_ttl(arg) == 0)
+            {
+                opt_key = 'T';
+            }
             opt = find_option(opts, opt_key);
             if (!opt)
                 return 1;

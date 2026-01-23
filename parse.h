@@ -12,6 +12,7 @@
 
 typedef struct s_arg42
 {
+    char *name;
     char type;
     char *arg;
     const char *helper;

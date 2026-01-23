@@ -1,25 +1,25 @@
 #include "parse.h"
 #include "ft_ping.h"
 
-struct  s_opts options;
+t_opts options;
 int volatile stop = 0;  
 
 void
 sig_int (int signal)
 {
     (void)signal;
-  stop = 1;
+    stop = 1;
 }
 
 static t_arg42 opts[] = {
-    {'v', NULL, "Enable verbose output"},
-    {'c', "[ARG]", "stop after sending NUMBER packets"},
-    {'i', "[ARG]", "wait NUMBER seconds between sending each ""packet"},
-    {'T', "[ARG]", "specify N as time-to-live"},
-    {'w', "[ARG]", "stop after N seconds"},
-    {'W', "[ARG]", "number of seconds to wait for response"},
-    {'?', NULL,"Display help information"},
-    {0, 0, 0}
+    {NULL,'v', NULL, "Enable verbose output"},
+    {NULL, 'c', "[ARG]", "stop after sending NUMBER packets"},
+    {NULL, 'i', "[ARG]", "wait NUMBER seconds between sending each ""packet"},
+    {"--ttl", 'T', "[ARG]", "specify N as time-to-live"},
+    {NULL, 'w', "[ARG]", "stop after N seconds"},
+    {NULL, 'W', "[ARG]", "number of seconds to wait for response"},
+    {NULL, '?', NULL,"Display help information"},
+    {0, 0, 0, 0}
 };
 
 static int handle_options(int key, char *arg, void *user)
@@ -32,7 +32,7 @@ static int handle_options(int key, char *arg, void *user)
         args->help = 1;
         break;
     case 'v':
-        args->verbose = 1;
+        options.verbose = 1;
         break;
     case 'c':
         options.count = parse_number(arg, 0, 1);
@@ -157,12 +157,10 @@ int main(int argc, char **argv) {
     int getaddrinfo_result = getaddrinfo(args.host, NULL, &addressInfoHints, &addrInfoPointer);
     if (getaddrinfo_result != 0)
     {
-        //fprintf(stderr, "ft_ping: %s: %s\n", args.host, gai_strerror(getaddrinfo_result));
         fprintf(stderr, "ft_ping: unknown host\n");
         exit(1);
     }
-       
-
+    
     dest = *(struct sockaddr_in *)addrInfoPointer->ai_addr;
     freeaddrinfo(addrInfoPointer);
     
@@ -185,8 +183,16 @@ int main(int argc, char **argv) {
     // 4. Send ICMP Echo Request
     uint16_t seq = 1;
     
-    printf("PING %s (%s): %d bytes of data\n", args.host, inet_ntoa(dest.sin_addr), 56);
-
+    printf("PING %s (%s): %d data bytes", args.host, inet_ntoa(dest.sin_addr), 56);
+    if (options.verbose)
+    {
+        uint16_t id = getpid() & 0xFFFF;
+        printf(", id 0x%04x = %u\n", id, id);
+    }
+    else
+    {
+        printf("\n");
+    }
    
     // Start timing
     struct timeval timeout;
@@ -194,7 +200,7 @@ int main(int argc, char **argv) {
 
     while (stop == 0)
     {
-        struct timeval start, end, now;
+        struct timeval start, now;
         gettimeofday(&start, NULL);
         gettimeofday(&now, NULL);
 
@@ -221,10 +227,12 @@ int main(int argc, char **argv) {
             if (retval < 0) {
                 continue;
             } else if (retval == 0) {
-                // Check packet timeout
                 if (options.verbose)
+                {
                     fprintf(stderr, "Request timeout for icmp_seq %d\n", seq);
+                }
             }
+            seq++;
 
             if (retval > 0)
             {
@@ -239,41 +247,14 @@ int main(int argc, char **argv) {
                 }
     
                 struct s_socket_header packet_recv = parse_header(buffer);
+                echo(packet_recv, 
+                    &stats, seq - 1, 
+                    r_addr, 
+                    bytes_received, 
+                    start, 
+                    options
+                );
                 
-                if (packet_recv.icmpHeader->type != ICMP_ECHOREPLY && options.verbose) 
-                {
-                    char *err_msg = ft_print_icmp_error(packet_recv.icmpHeader->type, packet_recv.icmpHeader->code);
-                    printf("From %s: %s\n", inet_ntoa(r_addr.sin_addr), err_msg);
-                    continue;
-                }
-    
-                if (verify_checksum(packet_recv.icmpHeader, bytes_received - (packet_recv.ipHeader->ihl * 4)) == 0)
-                {
-                    fprintf (stderr, "checksum mismatch from %s\n", inet_ntoa(r_addr.sin_addr));
-                    continue;
-                }
-    
-                if (ntohs(packet_recv.icmpHeader->un.echo.id) != (getpid() & 0xFFFF))
-                    continue;
-                if (ntohs(packet_recv.icmpHeader->un.echo.sequence) != seq)
-                    continue;
-    
-                stats.received++;
-    
-                gettimeofday(&end, NULL);
-                double time_elapsed = (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_usec - start.tv_usec) / 1000.0;
-                
-                unsigned int bytes_expected = bytes_received - (packet_recv.ipHeader->ihl * 4);
-                int ttl = packet_recv.ipHeader->ttl;
-                printf("%u bytes from %s: icmp_seq=%d ttl=%d time=%.1f ms\n", bytes_expected, inet_ntoa(r_addr.sin_addr), seq, ttl, time_elapsed);
-                
-                if (time_elapsed < stats.rtt_min)
-                    stats.rtt_min = time_elapsed;
-                if (time_elapsed > stats.rtt_max)
-                    stats.rtt_max = time_elapsed;
-                stats.rtt_sum += time_elapsed;
-                stats.rtt_sum_squares += time_elapsed * time_elapsed;
-                seq++;
             }
         }
         packet_size = build_packet(buffer, seq);

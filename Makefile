@@ -1,7 +1,7 @@
 NAME = ft_ping
 CC = cc
 CFLAGS = -Wall -Wextra -Werror
-SRCS = ft_ping.c parse.c error.c
+SRCS = ft_ping.c parse.c error.c echo.c
 OBJS = $(SRCS:.c=.o)
 
 INCLUDES = -I.

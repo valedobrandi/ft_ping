@@ -17,6 +17,7 @@
 #include <sys/time.h>
 #include <math.h>
 #include <error.h>
+#include "parse.h"
 
 #define ARG_TTL 260
 
@@ -91,5 +92,18 @@ typedef struct PING {
 } t_ping;
 
 char *ft_print_icmp_error(int type, int code);
+void echo(
+    struct s_socket_header packet_recv, 
+    t_ping *stats, int seq, 
+    struct sockaddr_in r_addr, 
+    ssize_t bytes_received, 
+    struct timeval start, 
+    t_opts options
+);
+int verify_checksum(struct icmphdr *icmp, int len) ;
+int build_packet(char *buffer, int seq);
+struct s_socket_header parse_header(char *buffer);
+uint16_t checksum(void *b, int len);
+void finish(t_ping *stats, char *host);
 
 #endif
