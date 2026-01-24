@@ -94,7 +94,7 @@ typedef struct PING {
 char *ft_print_icmp_error(int type, int code);
 void echo(
     struct s_socket_header packet_recv, 
-    t_ping *stats, int seq, 
+    t_ping *stats,
     struct sockaddr_in r_addr, 
     ssize_t bytes_received, 
     struct timeval start, 

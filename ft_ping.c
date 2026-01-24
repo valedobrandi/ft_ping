@@ -248,7 +248,7 @@ int main(int argc, char **argv) {
     
                 struct s_socket_header packet_recv = parse_header(buffer);
                 echo(packet_recv, 
-                    &stats, seq - 1, 
+                    &stats, 
                     r_addr, 
                     bytes_received, 
                     start, 

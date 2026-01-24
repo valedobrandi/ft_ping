@@ -26,16 +26,14 @@ struct icmp_code_descr
 
     {ICMP_TIME_EXCEEDED, ICMP_EXC_TTL, "Time to live exceeded"},
     {ICMP_TIME_EXCEEDED, ICMP_EXC_FRAGTIME, "Frag reassembly time exceeded"},
-
+    
     {ICMP_SOURCE_QUENCH, 0, "Source Quench"}, 
-    {ICMP_PARAMPROB, 0, "Parameter Problem"},
     
     {-1, -1, NULL}
   };
 
 char *ft_print_icmp_error(int type, int code) {
-    size_t n = sizeof(icmp_code_descr) / sizeof(icmp_code_descr[0]);
-    for (size_t i = 0; i< n; i++) {
+    for (int i = 0; icmp_code_descr[i].type != -1; i++) {
         if (icmp_code_descr[i].type == type && icmp_code_descr[i].code == code) {
             return icmp_code_descr[i].verbose;
         }
